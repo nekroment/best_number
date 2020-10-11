@@ -6,8 +6,10 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class AppService {
-  constructor(@InjectModel(BestNumber.name) private numberModel: Model<BestNumber>,
-  @InjectModel(Log.name) private logModel: Model<Log>) {}
+  constructor(
+    @InjectModel(BestNumber.name) private numberModel: Model<BestNumber>,
+    @InjectModel(Log.name) private logModel: Model<Log>,
+  ) {}
 
   async voteNumber(number: number) {
     const now = new Date();
@@ -18,17 +20,26 @@ export class AppService {
 
     const newVote = this.numberModel({
       number,
-      date
+      date,
     });
     return await newVote.save();
   }
 
   async findNumbers(date: string) {
-    return await this.numberModel.find({date: date});
+    return await this.numberModel.aggregate([
+      { $match: { date: date } },
+      { $group: { _id: '$number', count: { $sum: 1 } } },
+      {
+        $project: {
+          _id: 0,
+          number: '$_id',
+          count: 1,
+        },
+      },
+    ]);
   }
 
   async getLogs() {
     return await this.logModel.find();
   }
-
 }

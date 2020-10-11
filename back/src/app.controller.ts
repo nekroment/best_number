@@ -11,7 +11,8 @@ export class AppController {
   @Post('/vote')
   async voteNumber(@Body() body: BestNumber) {
     try {
-      return await this.appService.voteNumber(body.number);
+      const newVote = await this.appService.voteNumber(body.number);
+      return {message: `Vote for ${body.number} confirmed`}
     } catch (error) {}
   }
 

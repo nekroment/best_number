@@ -1,3 +1,4 @@
+import { query } from 'express';
 import { Log } from './../schema/Log';
 import {
   CallHandler,
@@ -31,16 +32,24 @@ export class LoggingInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       tap(response => {
+
+
+        const json = {
+            query: req.query,
+            body: req.body,
+            headers: req.headers
+        }
+
         const newLog = this.logModel({
           date,
           url,
-          json: JSON.stringify(response),
+          json
         });
 
         newLog.save();
 
         this.logger.log(
-          format('%s %s %dms %s', method, url, date, JSON.stringify(response)),
+          format('%s %s %dms %s', method, url, date, json),
         );
       }),
     );
