@@ -10,7 +10,11 @@ export class Log extends Document {
     date: string;
 
     @Prop()
-    json: string;
+    json: {
+        query: string[];
+        body: string[];
+        headers: string[];
+    };
 }
 
 export const LogSchema = SchemaFactory.createForClass(Log);
